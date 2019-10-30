@@ -10,13 +10,16 @@ public class Bus {
     Evacuee[] busStack;
 
 	public static void main(String[] args) {
-		Bus b = new Bus(1,10);
+		Bus b = new Bus(1,2);
 		
 		System.out.println("Is Bus Empty: " +b.isEmpty());
 		System.out.println("Is Bus Full: " +b.isFull());
-		System.out.println("Top of Stack: " +b.top());
+        System.out.println("Top of Stack: " +b.top());
+        System.out.println("Adding Evacuee");
 		b.push(new Evacuee("tester"));
 		System.out.println("Top of Stack: " + b.top());
+		System.out.println("Is Bus Empty: " +b.isEmpty());
+		System.out.println("Is Bus Full: " +b.isFull());
 		System.out.println("Pop of Stack: " + b.pop());
 		
 	}
@@ -41,23 +44,16 @@ public class Bus {
      */
     public void push(Evacuee evac) {
 
-    	if (!isFull() ) {
-    		busStack[size++] = evac;
-    	}
+    	if (!isFull()) busStack[size++] = evac;
     }
 
     /**
      * Implement pop method
      * @return popped evacuee
      */
-    public Evacuee pop() {
-    	Evacuee lastIn = null;
-    	
-    	if (!isEmpty()) {
-    		lastIn = busStack[--size];
-    	}
-    	
-        return lastIn;
+    public Evacuee pop() {    	
+    	if (!isEmpty()) return busStack[--size];
+        return null;
     }
 
     /**
@@ -65,8 +61,8 @@ public class Bus {
      * @return top evacuee
      */
     public Evacuee top() {
-    	
-        return busStack[size];
+        if (!isEmpty()) return busStack[size-1];
+        return null;
     }
 
     /**
@@ -85,10 +81,10 @@ public class Bus {
         return size == capacity-1;
     }
     
-    public boolean setId(int id) {
+    public int setId(int id) {
     	this.id = id;
     	
-    	return this.id == id;
+    	return this.id;
     }
     
     public int getId() {
