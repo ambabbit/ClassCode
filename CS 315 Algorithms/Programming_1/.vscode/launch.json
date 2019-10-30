@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - QuickSort",
+            "request": "launch",
+            "mainClass": "QuickSort",
+            "projectName": "Programming_1_f162d620"
+        }
+    ]
+}
