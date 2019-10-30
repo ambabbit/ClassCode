@@ -3,15 +3,19 @@
  */
 
 public class EvacuationQueue {
+	
+	public static void main(String[] args) {
+		
+	}
 
-    //@todo declare class variables here
+    //TODO declare class variables here
 
 
     /**
      * Constructor to initialize queue
      */
     public EvacuationQueue() {
-        //@todo initialize queue data structure.
+        //TODO initialize queue data structure.
     }
 
     /**
@@ -19,7 +23,7 @@ public class EvacuationQueue {
      * @param evacuee - evacuee to enqueue
      */
     public void enqueue(Evacuee evacuee) {
-        //@todo implement enqueue method
+        //TODO implement enqueue method
     }
 
 

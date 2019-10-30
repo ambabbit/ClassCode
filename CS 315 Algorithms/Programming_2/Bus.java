@@ -5,9 +5,22 @@
 
 public class Bus {
 
-    int id;
+    private int id, size, capacity;
+    
+    Evacuee[] busStack;
 
-    //@todo declare any class variables for the array-based stack implementation here.
+	public static void main(String[] args) {
+		Bus b = new Bus(1,10);
+		
+		System.out.println("Is Bus Empty: " +b.isEmpty());
+		System.out.println("Is Bus Full: " +b.isFull());
+		System.out.println("Top of Stack: " +b.top());
+		b.push(new Evacuee("tester"));
+		System.out.println("Top of Stack: " + b.top());
+		System.out.println("Pop of Stack: " + b.pop());
+		
+	}
+
 
     /**
      * Implement Default constructor
@@ -16,8 +29,10 @@ public class Bus {
      */
     public Bus(int id, int capacity) {
         this.id = id;
-
-        //@todo - initialize busStack
+        this.capacity = capacity;
+        
+        busStack = new Evacuee[capacity];
+        size = 0;
     }
 
     /**
@@ -26,7 +41,9 @@ public class Bus {
      */
     public void push(Evacuee evac) {
 
-        //@todo - implement array-based push method.
+    	if (!isFull() ) {
+    		busStack[size++] = evac;
+    	}
     }
 
     /**
@@ -34,8 +51,13 @@ public class Bus {
      * @return popped evacuee
      */
     public Evacuee pop() {
-        //@todo - implement array-based pop method.
-        return null;
+    	Evacuee lastIn = null;
+    	
+    	if (!isEmpty()) {
+    		lastIn = busStack[--size];
+    	}
+    	
+        return lastIn;
     }
 
     /**
@@ -43,8 +65,8 @@ public class Bus {
      * @return top evacuee
      */
     public Evacuee top() {
-        //@todo - implement array-based top method
-        return null;
+    	
+        return busStack[size];
     }
 
     /**
@@ -52,8 +74,7 @@ public class Bus {
      * @return true if empty
      */
     public boolean isEmpty() {
-        //@todo - implement array-based isEmpty method
-        return true;
+        return size == 0;
     }
 
     /**
@@ -61,7 +82,16 @@ public class Bus {
      * @return true if full.
      */
     public boolean isFull() {
-        //@todo - implement array-based isFull method
-        return true;
+        return size == capacity-1;
+    }
+    
+    public boolean setId(int id) {
+    	this.id = id;
+    	
+    	return this.id == id;
+    }
+    
+    public int getId() {
+    	return id;
     }
 }
