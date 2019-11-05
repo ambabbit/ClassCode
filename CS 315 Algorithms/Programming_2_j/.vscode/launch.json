@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - Simulation",
+            "request": "launch",
+            "mainClass": "Simulation",
+            "projectName": "Programming_2_j"
+        }
+    ]
+}
