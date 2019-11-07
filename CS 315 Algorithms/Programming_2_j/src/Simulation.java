@@ -40,7 +40,7 @@ public class Simulation {
         //Initialize Buses
         buses = new Bus[numBuses];
         for (int i=0; i < numBuses; i++) {
-            buses[i] = new Bus(i, busSize);
+            buses[i] = new Bus(i+1, busSize);
         }
 
         //Initialize Queues
@@ -178,8 +178,16 @@ public class Simulation {
         // OR the most recent passenger on the bus is loaded onto the bus (i.e. load
         // time remaining is zero).  False otherwise
 
+        boolean doneLoading = true;
 
-        return !before.isEmpty();
+        for (int i = 0; i<buses.length; i++) {
+            //System.out.println(buses[i].top());
+            if (buses[i].top() != null)
+            doneLoading = doneLoading && buses[i].top().isLoaded();
+        }
+
+
+        return !before.isEmpty() || doneLoading;
     }
 
 
@@ -206,6 +214,9 @@ public class Simulation {
 
         //@todo Implement a method that dequeues each evaccuee from the "after"
         // queue and prints out their information.
+        for (int i = 0; i<buses.length; i++) {
+            unloadBus(buses[i]);
+        }
 
         while (!after.isEmpty()) {
             Evacuee evac = after.dequeue();
@@ -216,7 +227,7 @@ public class Simulation {
 
 
     public static void main(String [] args) {
-        Simulation s = new Simulation(2, 15, 50);
+        Simulation s = new Simulation(3, 15, 50);
         s.run();
     }
 
