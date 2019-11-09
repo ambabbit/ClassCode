@@ -10,15 +10,14 @@ public class EvacuationQueue {
 		EvacuationQueue evac = new EvacuationQueue();
 	}
 
-    //TODO declare class variables here
-
+    private LinkedList<Evacuee> evac;
 
     /**
      * Constructor to initialize queue
      */
     public EvacuationQueue() {
-        //TODO initialize queue data structure.
-        LinkedList<Evacuee> evac = new LinkedList<Evacuee>();
+
+        evac = new LinkedList<Evacuee>();
     }
 
     /**
@@ -26,7 +25,8 @@ public class EvacuationQueue {
      * @param evacuee - evacuee to enqueue
      */
     public void enqueue(Evacuee evacuee) {
-        //TODO implement enqueue method
+
+        evac.add(evacuee);
     }
 
 
@@ -35,8 +35,12 @@ public class EvacuationQueue {
      * @return dequeued evacuee
      */
     public Evacuee dequeue() {
-        //@todo implement dequeue method
-        return null;
+        Evacuee firstEvac = null;
+        if (!isEmpty()) {
+            firstEvac = evac.get(0);
+            evac.remove(0);
+        }
+        return firstEvac;
     }
 
     /**
@@ -44,7 +48,8 @@ public class EvacuationQueue {
      * @return front of queue
      */
     public Evacuee peek() {
-        //@todo implement peek method
+        if (!isEmpty()) return evac.get(0);
+
         return null;
     }
 
@@ -53,8 +58,7 @@ public class EvacuationQueue {
      * @return true if full, false otherwise
      */
     public boolean isEmpty() {
-        //@todo implement isEmpty method
-        return true;
+        return evac.size() == 0;
     }
 
     /**
@@ -62,7 +66,6 @@ public class EvacuationQueue {
      * @return true if full, false otherwise
      */
     public boolean isFull() {
-        //@todo implement isEmpty method
         return true;
     }
 }

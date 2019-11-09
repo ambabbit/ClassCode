@@ -78,7 +78,7 @@ public class Bus {
      * @return true if full.
      */
     public boolean isFull() {
-        return size == capacity-1;
+        return size == capacity;
     }
     
     public int setId(int id) {

@@ -17,6 +17,8 @@ public class Simulation {
 
     private Bus [] buses;
 
+    private Bus activeBus;
+
     private EvacuationQueue before;
     private EvacuationQueue after;
 
@@ -38,13 +40,14 @@ public class Simulation {
         //Initialize Buses
         buses = new Bus[numBuses];
         for (int i=0; i < numBuses; i++) {
-            //@todo initalize array of bus objects
+            buses[i] = new Bus(i+1, busSize);
         }
 
         //Initialize Queues
         //@todo initialize "before" queue to store evacuees waiting for buses
         //@todo initailize "after" queue to store evacuees once unloaded from buses
-
+        before = new EvacuationQueue();
+        after = new EvacuationQueue();
 
 
         this.numEvacuees = numEvacuees;
@@ -90,6 +93,7 @@ public class Simulation {
         for (int i=0; i < num; i++) {
             evac = new Evacuee("Name_" + i);
             //@todo load each evacuee (evac) into the "before" queue
+            before.enqueue(evac);
         }
     }
 
@@ -117,12 +121,15 @@ public class Simulation {
         for (int i = 0; i < buses.length; i++) {
 
             curBus = buses[i]; //current bus
+            activeBus = curBus;
 
             //@todo if current bus is empty, load a new passenger
-
+            if (curBus.isEmpty() && !before.isEmpty()) loadPassenger(curBus);;
             //@todo decrement load time for evacuee at the front of the bus
             // i.e. they are located at the top of the stack.
-
+            if (!curBus.isEmpty()) 
+            {
+                curBus.top().decrementLoadingTime();
 
             /*
                 @todo if the evacuee is settled on the bus (i.e. evac.isLoaded()  is true), then...
@@ -130,6 +137,16 @@ public class Simulation {
                 b. If before is empty (all evacuated), unload the bus (no more passengers)
                 c. Otherwise, load another passenger.
              */
+                if(curBus.top().isLoaded()) {
+                    if (curBus.isFull()) {
+                        unloadBus(curBus);
+                    } else if (before.isEmpty()) {
+                        unloadBus(curBus);
+                    } else {
+                        loadPassenger(curBus);
+                    }
+                }
+            }   
         }
     }
 
@@ -145,6 +162,9 @@ public class Simulation {
         // a. dequeues an evacuee from the before queue
         // b. Sets the bus id for the evacuee (i.e. which bus did they get on)
         // c. Push the evacuee on to the bus (stack)
+        Evacuee evac = before.dequeue();
+        evac.setBus(bus.getId());
+        bus.push(evac);
     }
 
     /**
@@ -161,8 +181,16 @@ public class Simulation {
         // OR the most recent passenger on the bus is loaded onto the bus (i.e. load
         // time remaining is zero).  False otherwise
 
+        boolean stillLoading = false;
 
-        return false;
+        for (int i = 0; i<buses.length; i++) {
+            //System.out.println(buses[i].top());
+            if (buses[i].top() != null)
+            stillLoading = stillLoading || !buses[i].top().isLoaded();
+        }
+
+
+        return !before.isEmpty() || stillLoading;
     }
 
 
@@ -174,6 +202,10 @@ public class Simulation {
         //@todo Implement a method that unloads each evacuee from the bus and
         // places them in the "after" queue to track the order in which they
         // arrived at the destination.
+
+        while (!bus.isEmpty()) {
+            after.enqueue(bus.pop());
+        }
     }
 
 
@@ -185,12 +217,21 @@ public class Simulation {
 
         //@todo Implement a method that dequeues each evaccuee from the "after"
         // queue and prints out their information.
+        int count = 1;
+        for (int i = 0; i<buses.length; i++) {
+            unloadBus(buses[i]);
+        }
+
+        while (!after.isEmpty()) {
+            Evacuee evac = after.dequeue();
+            System.out.println(evac.name + ", " +evac.busNo);
+        }
     }
 
 
 
     public static void main(String [] args) {
-        Simulation s = new Simulation(2, 10, 50);
+        Simulation s = new Simulation(2, 10, 100);
         s.run();
     }
 

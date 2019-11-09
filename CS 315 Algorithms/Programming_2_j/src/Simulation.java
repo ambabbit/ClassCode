@@ -217,20 +217,21 @@ public class Simulation {
 
         //@todo Implement a method that dequeues each evaccuee from the "after"
         // queue and prints out their information.
+        int count = 1;
         for (int i = 0; i<buses.length; i++) {
             unloadBus(buses[i]);
         }
 
         while (!after.isEmpty()) {
             Evacuee evac = after.dequeue();
-            System.out.println(evac.name + ", " +evac.busNo + ", isLoaded: " + evac.isLoaded());
+            System.out.println(evac.name + ", " +evac.busNo);
         }
     }
 
 
 
     public static void main(String [] args) {
-        Simulation s = new Simulation(2, 15, 50);
+        Simulation s = new Simulation(2, 10, 100);
         s.run();
     }
 
