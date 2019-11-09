@@ -122,12 +122,14 @@ public class Simulation {
 
             curBus = buses[i]; //current bus
             activeBus = curBus;
+
             //@todo if current bus is empty, load a new passenger
-            if (curBus.isEmpty()) loadPassenger(curBus);;
+            if (curBus.isEmpty() && !before.isEmpty()) loadPassenger(curBus);;
             //@todo decrement load time for evacuee at the front of the bus
             // i.e. they are located at the top of the stack.
-            curBus.top().decrementLoadingTime();
-
+            if (!curBus.isEmpty()) 
+            {
+                curBus.top().decrementLoadingTime();
 
             /*
                 @todo if the evacuee is settled on the bus (i.e. evac.isLoaded()  is true), then...
@@ -135,15 +137,16 @@ public class Simulation {
                 b. If before is empty (all evacuated), unload the bus (no more passengers)
                 c. Otherwise, load another passenger.
              */
-            if(curBus.top().isLoaded()) {
-                if (curBus.isFull()) {
-                    unloadBus(curBus);
-                } else if (before.isEmpty()) {
-                    unloadBus(curBus);
-                } else {
-                    loadPassenger(curBus);
+                if(curBus.top().isLoaded()) {
+                    if (curBus.isFull()) {
+                        unloadBus(curBus);
+                    } else if (before.isEmpty()) {
+                        unloadBus(curBus);
+                    } else {
+                        loadPassenger(curBus);
+                    }
                 }
-            }
+            }   
         }
     }
 
@@ -178,16 +181,16 @@ public class Simulation {
         // OR the most recent passenger on the bus is loaded onto the bus (i.e. load
         // time remaining is zero).  False otherwise
 
-        boolean doneLoading = true;
+        boolean stillLoading = false;
 
         for (int i = 0; i<buses.length; i++) {
             //System.out.println(buses[i].top());
             if (buses[i].top() != null)
-            doneLoading = doneLoading && buses[i].top().isLoaded();
+            stillLoading = stillLoading || !buses[i].top().isLoaded();
         }
 
 
-        return !before.isEmpty() || doneLoading;
+        return !before.isEmpty() || stillLoading;
     }
 
 
@@ -220,14 +223,14 @@ public class Simulation {
 
         while (!after.isEmpty()) {
             Evacuee evac = after.dequeue();
-            System.out.println(evac.name + ", " +evac.busNo);
+            System.out.println(evac.name + ", " +evac.busNo + ", isLoaded: " + evac.isLoaded());
         }
     }
 
 
 
     public static void main(String [] args) {
-        Simulation s = new Simulation(3, 15, 50);
+        Simulation s = new Simulation(2, 15, 50);
         s.run();
     }
 
