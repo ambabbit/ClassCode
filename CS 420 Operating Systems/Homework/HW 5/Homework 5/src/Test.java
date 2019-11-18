@@ -8,13 +8,13 @@
 public class Test
 {
 	public static void main(String[] args) {
-		PageGenerator ref = new PageGenerator(new Integer(args[0]).intValue());
+		PageGenerator ref = new PageGenerator(40);
 
 		int[] referenceString = ref.getReferenceString();
 
 		/** Use either the FIFO or LRU algorithms */
-		ReplacementAlgorithm fifo = new FIFO(new Integer(args[1]).intValue());
-		ReplacementAlgorithm lru = new LRU(new Integer(args[1]).intValue());
+		ReplacementAlgorithm fifo = new FIFO(5);
+		ReplacementAlgorithm lru = new LRU(5);
 
 		// output a message when inserting a page
 		for (int i = 0; i < referenceString.length; i++) {
