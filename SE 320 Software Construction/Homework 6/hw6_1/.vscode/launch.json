@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - Que62",
+            "request": "launch",
+            "mainClass": "Que62"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - Que62",
+            "request": "launch",
+            "mainClass": "Que62",
+            "projectName": "hw6_1_59475d1d"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - ClockWithAudio",
+            "request": "launch",
+            "mainClass": "ClockWithAudio",
+            "projectName": "hw6_1_59475d1d"
+        }
+    ]
+}
