@@ -25,6 +25,7 @@ void printMemory();
 void executeInstruction(void);
 void fetchNextInstruction(void);
 void printMemoryToFile(void);
+void testPrint();
 
 int main(void) {
 	int count = 0;
@@ -36,13 +37,15 @@ int main(void) {
 		executeInstruction();
 		count++;
 	}
-
-	printMemoryToFile();
+	testPrint();
+//	printMemoryToFile();
 	return 0;
 }
 
-void printMemory() {
-
+void testPrint() {
+	for(int i = 4101; i < 5000; i++) {
+		printf(" %x", memory[i]);
+	}
 
 }
 
@@ -227,7 +230,7 @@ switch (MSB) {
 
 				if (instruction%4 == 0) {
 					memoryAddress = (memory[PC-2]<<8) + memory[PC-1];
-					printf("[%x], %02x \n", memoryAddress, memory[memoryAddress]);
+					printf("[%d], %02x \n", memoryAddress, memory[memoryAddress]);
 				} else if (instruction%4 == 1) {
 					printf("CONST\n");
 					PC++;

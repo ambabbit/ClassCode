@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - VaccineDistribution",
+            "request": "launch",
+            "mainClass": "VaccineDistribution",
+            "projectName": "Programming_3_c068c1d2"
+        }
+    ]
+}
