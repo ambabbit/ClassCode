@@ -28,23 +28,21 @@ void printMemoryToFile(void);
 void testPrint();
 
 int main(void) {
-	int count = 0;
 	puts("!!!Hello World!!!"); /* prints !!!Hello World!!! */
 	readInMemory();
 
-	while ((memory[PC] != HALT_OPCODE) && count < 5){
+	while ((memory[PC] != HALT_OPCODE)){
 		fetchNextInstruction();
 		executeInstruction();
-		count++;
 	}
-	testPrint();
 	printMemoryToFile();
 	return 0;
 }
 
 void testPrint() {
-	printf("ACC: %x", ACC);
-
+	for (int i = 0x2000; i<0x2007; i++) {
+		printf(" 0x%02x", memory[i]);
+	}
 }
 
 void readInMemory() {
@@ -112,26 +110,27 @@ bool branchBit = instruction > 15;
 int address = (memory[PC+1] << 8) + memory [PC + 2];
 int destination, source;
 
+
 switch (MSB) {
 	case 1:
 
 		//Examining Source
 		if (instruction %4 == 0) {
 			source = MAR;
-			printf("MAR");
+			printf("Source MAR,");
 		} else if (instruction %4 == 1) {
-			printf("ACC");
+			printf("Source ACC,");
 			source = ACC;
 		} else if (instruction %4 == 2) {
 			//Source is Constant
 			if (instruction%16 > 8) {
 				// Destination is MAR so 16 bit
 				source = (memory[PC-2] <<8) +memory[PC-1];
-				printf("[%04x]", source);
+				printf(" [%04x]", source);
 			} else {
 				// Destination is ACC so 8 bit
 				source = memory[PC-1];
-				printf("[%04x]", source);
+				printf(" [%04x]", source);
 			}
 
 		} else if (instruction %4 == 3) {
@@ -148,59 +147,55 @@ switch (MSB) {
 			destination = (memory[PC-2]<<8) + memory[PC-1];
 
 		} else if (instruction%16 > 8) {
-			printf("MAR ");
+			printf(" dest MAR, ");
 			destination = MAR;
 		} else if (instruction%16 > 4) {
-			printf("ACC ");
+			printf(" dest ACC, ");
 			destination = ACC;
 		} else {
-			printf("Indirect");
+			printf(" dest Indirect,");
 			destination = memory[MAR];
 		}
 
     //do operations
 		if (mathBits == 0) {
-			printf("AND ");
+			printf("AND \n");
       destination &= source;
 		} else if (mathBits == 1) {
-			printf("OR ");
+			printf("OR \n");
       destination |= source;
 		} else if (mathBits == 2) {
-			printf("XOR ");
+			printf("XOR \n");
       destination ^= source;
 		} else if (mathBits == 3) {
-			printf("ADD ");
+			printf("ADD \n");
       destination += source;
 		} else if (mathBits == 4) {
-			printf("SUB ");
+			printf("SUB \n");
       destination -= source;
 		} else if (mathBits == 5) {
-			printf("INC ");
+			printf("INC \n");
       destination++;
 		} else if (mathBits == 6) {
-			printf("DEC ");
+			printf("DEC \n");
       destination--;
 		} else if (mathBits == 7) {
-			printf("NOT ");
-      destination != source;
+			printf("NOT \n");
+      destination ^= destination;
 		}
     // store destination to where it needs
 
     //Examine Destination
 		if (instruction%16 > 12) {
-			printf("MEMORY ");
       //@TODO Implement pull destination from memory
       memory[PC-1] = destination %256;
       memory[PC-2] = destination/256;
 
 		} else if (instruction%16 > 8) {
-			printf("MAR ");
 			MAR = destination;
 		} else if (instruction%16 > 4) {
-			printf("ACC ");
 			ACC = destination;
 		} else {
-			printf("Indirect");
 			memory[MAR] = destination;
 		}
 		break;
@@ -252,52 +247,129 @@ switch (MSB) {
           }
           break;
 			case 0:
+				// ------------------ Memory Operations------------------
+				switch ((instruction%16)/8){
+				case 0:
+					// Store Section
+					printf("STOR");
+					// Find Register based on bit
+					if ((instruction %8)/4 == 1) {
+						// Register is MAR
+						source = MAR;
 
-				// Evaluate the Operand
-				if (instruction%4 == 0) {
-					// Operand is value at a memory location
-					memoryAddress = (memory[PC-2]<<8) + memory[PC-1];
-					source = memory[memoryAddress];
-
-				} else if (instruction%4 == 1) {
-					printf("CONST\n");
-					// Operand is a constant
-					if (instruction%8 > 3) {
-						// MAR is destination
-						source = (memory[PC-2]<<8) + memory[PC-1];
-
+						memoryAddress = (memory[PC-2] << 8) + memory[PC-1];
+						memory[memoryAddress] = source/256;
+						memory[memoryAddress+1] = source%256;
+						printf(" MAR");
 					} else {
-						//ACC is destination for the constant
-						source = memory[PC-1];
+						// Register is ACC
+						source = ACC;
+						if (instruction%4 == 0) {
+							memoryAddress = (memory[PC-2] << 8) + memory[PC-1];
+							memory[memoryAddress] = source;
+						} else if (instruction%4 == 2) {
+							memoryAddress = MAR;
+						}
+
+						printf(" ACC");
+					}
+					printf(" [%04x]\n", memoryAddress);
+					break;
+
+
+				case 1:
+					printf("LOAD");
+//
+					if (instruction%4 == 0) {
+						memoryAddress = (memory[PC-2] << 8) + memory[PC-1];
+
+						if ((instruction%8)/4 == 0) {
+							source = memory[memoryAddress];
+						} else {
+							source = memoryAddress;
+						}
+
+					} else if (instruction%4 == 1) {
+
+						if ((instruction%8)/4 == 0) {
+							// Load Constant into ACC so 8 bit
+							source = memory[PC-1];
+						} else {
+							//Load Constant into MAR so 16 bit
+							memoryAddress = (memory[PC-2] << 8) + memory[PC-1];
+							source = memory[memoryAddress];
+						}
+
+					} else if (instruction%4 == 2) {
+
+						source = memory[MAR];
+
 					}
 
-				} else {
-					// Operand indirect, address is saved in MAR
-					source = (memory[PC-2]<<8) + memory[PC-1];
-				}
 
+					if ((instruction%8)/4 == 0) {
+						// Load to ACC
+						ACC = source;
+						if (instruction%4 == 0){
+							printf(" ACC [%04x] is %02x\n", memoryAddress, source);
+						} else {
+							printf(" ACC 0x%02x\n", source);
+						}
 
-
-				// Determine Register
-				if (instruction%8 > 3) {
-					printf("INDEX ");
-					if (instruction > 7) {
+					} else {
+						//Load to MAR
 						MAR = source;
-					} else {
-
+						printf(" MAR [%04x] is %04x\n", memoryAddress, source);
 					}
 
-				} else {
-					printf("ACC ");
-				}
 
-
-				if (instruction > 7)
-				{
-					printf("LOAD ");
-				} else {
-					printf("STOR ");
+					break;
 				}
+//				// Evaluate the Operand
+//				if (instruction%4 == 0) {
+//					// Operand is value at a memory location
+//					memoryAddress = (memory[PC-2]<<8) + memory[PC-1];
+//					source = memory[memoryAddress];
+//
+//				} else if (instruction%4 == 1) {
+//					printf("CONST\n");
+//					// Operand is a constant
+//					if (instruction%8 > 3) {
+//						// MAR is destination
+//						source = (memory[PC-2]<<8) + memory[PC-1];
+//
+//					} else {
+//						//ACC is destination for the constant
+//						source = memory[PC-1];
+//					}
+//
+//				} else {
+//					// Operand indirect, address is saved in MAR
+//					source = (memory[PC-2]<<8) + memory[PC-1];
+//				}
+//
+//
+//
+//				// Determine Register
+//				if (instruction%8 > 3) {
+//					printf("INDEX ");
+//					if (instruction > 7) {
+//						MAR = source;
+//					} else {
+//
+//					}
+//
+//				} else {
+//					printf("ACC ");
+//				}
+//
+//
+//				if (instruction > 7)
+//				{
+//					printf("LOAD ");
+//				} else {
+//					printf("STOR ");
+//				}
 
 				break;
 		}
