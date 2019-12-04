@@ -16,8 +16,8 @@
 
 uint16_t PC=0;
 uint8_t IR=0;
-uint16_t MAR=0;
-uint8_t ACC=0;
+uint16_t MAR=0x0003;
+uint8_t ACC=0x03;
 uint8_t memory[65536];
 
 void readInMemory();
@@ -28,21 +28,22 @@ void printMemoryToFile(void);
 void testPrint();
 
 int main(void) {
+	int count = 0;
 	puts("!!!Hello World!!!"); /* prints !!!Hello World!!! */
 	readInMemory();
 
-	while ((memory[PC] != HALT_OPCODE)){
+	while ((memory[PC] != HALT_OPCODE) && count < 1){
 		fetchNextInstruction();
 		executeInstruction();
+		count ++;
 	}
+	testPrint();
 	printMemoryToFile();
 	return 0;
 }
 
 void testPrint() {
-	for (int i = 0x2000; i<0x2007; i++) {
-		printf(" 0x%02x", memory[i]);
-	}
+	printf("\n ACC: %x\n", ACC);
 }
 
 void readInMemory() {
@@ -116,8 +117,8 @@ switch (MSB) {
 
 		//Examining Source
 		if (instruction %4 == 0) {
-			source = MAR;
-			printf("Source MAR,");
+			source = memory[MAR];
+			printf("Source INDIRECT,");
 		} else if (instruction %4 == 1) {
 			printf("Source ACC,");
 			source = ACC;
@@ -141,15 +142,15 @@ switch (MSB) {
 
 
     //Examine Destination
-		if (instruction%16 > 12) {
+		if (instruction%16 >= 12) {
 			printf("MEMORY ");
       //@TODO Implement pull destination from memory
 			destination = (memory[PC-2]<<8) + memory[PC-1];
 
-		} else if (instruction%16 > 8) {
+		} else if (instruction%16 >= 8) {
 			printf(" dest MAR, ");
 			destination = MAR;
-		} else if (instruction%16 > 4) {
+		} else if (instruction%16 >= 4) {
 			printf(" dest ACC, ");
 			destination = ACC;
 		} else {
@@ -164,6 +165,10 @@ switch (MSB) {
 		} else if (mathBits == 1) {
 			printf("OR \n");
       destination |= source;
+		printf("dest: %x, source: %x", destination, source);
+		// 1001 0011 ||
+		// 0000 0011
+		// 1001 0011
 		} else if (mathBits == 2) {
 			printf("XOR \n");
       destination ^= source;
@@ -197,6 +202,8 @@ switch (MSB) {
 			ACC = destination;
 		} else {
 			memory[MAR] = destination;
+
+			printf("\n Memory %x\n", destination);
 		}
 		break;
 
@@ -297,7 +304,7 @@ switch (MSB) {
 						} else {
 							//Load Constant into MAR so 16 bit
 							memoryAddress = (memory[PC-2] << 8) + memory[PC-1];
-							source = memory[memoryAddress];
+							source = memoryAddress;
 						}
 
 					} else if (instruction%4 == 2) {
