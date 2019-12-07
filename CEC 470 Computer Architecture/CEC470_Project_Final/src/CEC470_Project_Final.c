@@ -13,38 +13,34 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 
 uint16_t PC=0;
 uint8_t IR=0;
 uint16_t MAR=0x0;
 uint8_t ACC=0x0;
 uint8_t memory[65536];
+uint8_t t_mem[65536];
 
 void readInMemory();
-void printMemory();
 void executeInstruction(void);
 void fetchNextInstruction(void);
 void printMemoryToFile(void);
-void testPrint();
 
 int main(void) {
 	int count = 0;
-	puts("!!!Hello World!!!"); /* prints !!!Hello World!!! */
 	readInMemory();
 
-	while ((memory[PC] != HALT_OPCODE)){
+	while (memory[PC] != HALT_OPCODE){
 		fetchNextInstruction();
 		executeInstruction();
 		count ++;
 	}
-	testPrint();
+
 	printMemoryToFile();
 	return 0;
 }
 
-void testPrint() {
-	printf("\n ACC: %x\n", ACC);
-}
 
 void readInMemory() {
 	int count = 0;
@@ -54,7 +50,10 @@ void readInMemory() {
 
 	while(fgets(str, 4,fp)!= NULL) {
 		int readInValue = (int) strtol(str,NULL,16);
-		memory[count++] = readInValue;
+
+		if (strcmp(str, "") != 0 && strcmp(str, "\n") != 0 && strcmp(str, "\r") != 0 && strcmp(str, "\0") != 0) {
+			memory[count++] = readInValue;
+		}
 	}
 	fclose(fp);
 }
@@ -169,12 +168,12 @@ switch (MSB) {
 
 			if (instruction%16 > 8) {
 				// Destination is MAR so 16 bit
-				source = (memory[MAR] <<8) +memory[MAR+1];
+				source = (memory[(memory[PC-2] <<8) +memory[PC-1]] <<8) + memory[((memory[PC-2] <<8) +memory[PC-1]) +1];
 				printf("Memory: %04x", source);
 			} else {
 				// Destination is ACC so 8 bit
-				source = memory[MAR];
-				printf("Memory: %04x", source);
+				source = memory[(memory[PC-2] <<8) +memory[PC-1]];
+				printf("Memory: %04x", memory[PC-1]);
 			}
 
 			printf("[%x]", source);
@@ -299,7 +298,8 @@ switch (MSB) {
             }
           } else if (instruction % 8 == 6) {
             if (ACC >= 0) {
-              printf("BGE");
+
+              printf("BGE %02x", instruction);
               PC = address;
             }
           }
@@ -356,12 +356,15 @@ switch (MSB) {
 					printf("LOAD");
 //
 					if (instruction%4 == 0) {
+						//operand  is address
 						memoryAddress = (memory[PC-2] << 8) + memory[PC-1];
 
 						if ((instruction%8)/4 == 0) {
+							// Register is ACC
 							source = memory[memoryAddress];
 						} else {
-							source = memoryAddress;
+							source = (memory[memoryAddress] << 8) + memory[memoryAddress +1];
+
 						}
 
 					} else if (instruction%4 == 1) {
@@ -454,9 +457,9 @@ switch (MSB) {
 void printMemoryToFile(void) {
   FILE* outputFile = fopen("output.txt", "w");
 
-  for (int i =0; i<sizeof(memory); i++) {
+  for (int i =1; i<=sizeof(memory); i++) {
 
- 	 fprintf(outputFile, " %02x", memory[i]);
+ 	 fprintf(outputFile, " %02x", memory[i-1]);
      if(i %16 ==0) fprintf(outputFile, "\n");
 
   }
