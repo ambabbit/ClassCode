@@ -47,6 +47,7 @@ public class VaccineDistribution {
 			//ADD YOUR CODE HERE!
 			patientList.insert(p.getID(), p);
 
+			// determining priority
 			if (p.isPregnant()) {
 				priority = 0;
 			} else if (p.getAge() < 10 || p.getAge() > 65)  {
@@ -55,6 +56,7 @@ public class VaccineDistribution {
 				priority = p.getAge();
 			}
 
+			// queueing into heap
 			queue.enqueue(priority, p.getID());
 			
 		}
@@ -72,7 +74,9 @@ public class VaccineDistribution {
 		int batchNum = 0;
 		Patient curPat = null;
 		
+		// looping till queue is empty
 		while (!queue.isEmpty()) {
+			// looping through batch size
 			for (int i = 0; i < batchSize; i++) {
 				int curPatNum = queue.dequeue();
 				curPat = patientList.search(curPatNum);
@@ -103,28 +107,21 @@ public class VaccineDistribution {
 		boolean validFile = false;
 		VaccineDistribution vd;
 		
-		do{ 
-			try {
-				Scanner in = new Scanner(System.in);
-				System.out.print("Please enter the file name: ");
-				String filename = in.nextLine();		
-				
-				System.out.print("Please enter the size of each batch: ");
-				int size = Integer.parseInt(in.nextLine());	
-				in.close();	
+		Scanner in = new Scanner(System.in);
+		System.out.print("Please enter the file name: ");
+		String filename = in.nextLine();		
+		
+		System.out.print("Please enter the size of each batch: ");
+		int size = Integer.parseInt(in.nextLine());	
+		in.close();	
 
-				
-				vd = new VaccineDistribution(size);
-				vd.loadPatients(filename);
-				validFile = true;
-				vd.processVacines();
-				vd.printResults();		
-				
-			} catch(IOException e) {
-				System.out.println("Invalid File, Try Again Please");
-			}
-
-		} while(!validFile);
+		
+		vd = new VaccineDistribution(size);
+		vd.loadPatients(filename);
+		validFile = true;
+		vd.processVacines();
+		vd.printResults();		
+		
 	}
 	
 }

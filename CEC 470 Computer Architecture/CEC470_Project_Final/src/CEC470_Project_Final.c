@@ -103,7 +103,6 @@ void fetchNextInstruction(void) {
 			incAmount += 2;
 		}
 	}
-	printf("\nIncrement it %d\n", incAmount);
 	PC += incAmount;
 }
 
@@ -128,22 +127,16 @@ switch (MSB) {
 				// Destination is MAR so 16 bit
 
 				source = (memory[MAR] <<8) +memory[MAR+1];
-				printf("Indirect: %04x", source);
 
 			} else {
 				// Destination is ACC so 8 bit
 
 				source = memory[MAR];
-				printf("Indirect: %04x", source);
 			}
 
 			source = memory[MAR];
 
-			printf("Source INDIRECT,");
-
 		} else if (instruction %4 == 1) {
-
-			printf("Source ACC,");
 
 			source = ACC;
 
@@ -154,13 +147,11 @@ switch (MSB) {
 				// Destination is MAR so 16 bit
 
 				source = (memory[PC-2] <<8) +memory[PC-1];
-				printf("Constant: %04x", source);
 
 			} else {
 				// Destination is ACC so 8 bit
 
 				source = memory[PC-1];
-				printf("Constant: %04x", source);
 			}
 
 		} else if (instruction %4 == 3) {
@@ -169,27 +160,20 @@ switch (MSB) {
 			if (instruction%16 > 8) {
 				// Destination is MAR so 16 bit
 				source = (memory[(memory[PC-2] <<8) +memory[PC-1]] <<8) + memory[((memory[PC-2] <<8) +memory[PC-1]) +1];
-				printf("Memory: %04x", source);
 			} else {
 				// Destination is ACC so 8 bit
 				source = memory[(memory[PC-2] <<8) +memory[PC-1]];
-				printf("Memory: %04x", memory[PC-1]);
 			}
 
-			printf("[%x]", source);
 		}
 
 
     //Examine Destination
 		if (instruction%16 >= 12) {
-
-			printf("MEMORY ");
 			destination = (memory[PC-2]<<8) + memory[PC-1];
 		} else if (instruction%16 >= 8) {
-			printf(" dest MAR, ");
 			destination = MAR;
 		} else if (instruction%16 >= 4) {
-			printf(" dest ACC, ");
 			destination = ACC;
 		} else {
 
@@ -197,13 +181,10 @@ switch (MSB) {
 				// Destination is MAR so 16 bit
 				destination = (memory[MAR] <<8) +memory[MAR+1];
 
-				printf(" Indirect: %04x", source);
-
 			} else {
 				// Destination is ACC so 8 bit
 				destination = memory[MAR];
 
-				printf(" Indirect: %04x", source);
 			}
 			// Destination is Indirect
 
@@ -212,34 +193,20 @@ switch (MSB) {
 
     //do operations
 		if (mathBits == 0) {
-			printf("AND \n");
       destination &= source;
 		} else if (mathBits == 1) {
-			printf("OR \n");
       destination |= source;
-		printf("dest: %x, source: %x", destination, source);
-		// 1001 0011 ||
-		// 0000 0011
-		// 1001 0011
 		} else if (mathBits == 2) {
-			printf("XOR \n");
-			printf("\n source %x", source);
       destination ^= source;
 		} else if (mathBits == 3) {
-			printf("ADD \n");
-			printf("dest Val: %x, Source val %x", destination, source);
       destination += source;
 		} else if (mathBits == 4) {
-			printf("SUB \n");
       destination -= source;
 		} else if (mathBits == 5) {
-			printf("INC \n");
       destination++;
 		} else if (mathBits == 6) {
-			printf("DEC \n");
       destination--;
 		} else if (mathBits == 7) {
-			printf("NOT \n");
       destination ^= 0xff;
 		}
     // store destination to where it needs
@@ -263,15 +230,12 @@ switch (MSB) {
 
       // Branches or Jumping
       case 1:
-          printf("branch type: ");
 
         	if (instruction%8 == 0) {
             PC = address;
-            printf("BRA %x", address);
             // BRA (unconditional)
           } else if (instruction %8 == 1) {
             //BRZ
-              printf("BRZ");
             if (ACC == 0) {
               //perform jump
               PC = address;
@@ -279,12 +243,10 @@ switch (MSB) {
           } else if (instruction %8 == 2) {
             if (ACC != 0) {
               PC = address;
-              printf("BNE");
             }
           } else if (instruction % 8 == 3) {
             if (ACC < 0) {
               PC = address;
-              printf("BLT");
             }
           } else if (instruction % 8 == 4) {
             if (ACC <= 0) {
@@ -293,13 +255,11 @@ switch (MSB) {
             }
           } else if (instruction % 8 == 5) {
             if (ACC > 0) {
-              printf("BGT");
             PC = address;
             }
           } else if (instruction % 8 == 6) {
             if (ACC >= 0) {
 
-              printf("BGE %02x", instruction);
               PC = address;
             }
           }
@@ -309,7 +269,6 @@ switch (MSB) {
 				switch ((instruction%16)/8){
 				case 0:
 					// Store Section
-					printf("STOR");
 
 					// Find Register based on bit
 					if ((instruction %8)/4 == 1) {
@@ -324,7 +283,6 @@ switch (MSB) {
 							memory[memoryAddress] = source/256;
 							memory[memoryAddress+1] = source%256;
 						}
-						printf(" MAR");
 					} else {
 
 						// Register is ACC
@@ -340,20 +298,16 @@ switch (MSB) {
 							memoryAddress = memory[PC-1] + memory[PC++];
 							memory[memoryAddress] = source;
 
-							printf(" Constant mem Address, %x ", PC);
 
 						}else if (instruction%4 == 2) {
 							memory[MAR] = source;
 						}
 
-						printf(" ACC");
 					}
-					printf(" [%04x]\n", memoryAddress);
 					break;
 
 
 				case 1:
-					printf("LOAD");
 //
 					if (instruction%4 == 0) {
 						//operand  is address
@@ -389,65 +343,17 @@ switch (MSB) {
 						// Load to ACC
 						ACC = source;
 						if (instruction%4 == 0){
-							printf(" ACC [%04x] is %02x\n", memoryAddress, source);
 						} else {
-							printf(" ACC 0x%02x\n", source);
 						}
 
 					} else {
 						//Load to MAR
 						MAR = source;
-						printf(" MAR [%04x] is %04x\n", memoryAddress, source);
 					}
 
 
 					break;
 				}
-//				// Evaluate the Operand
-//				if (instruction%4 == 0) {
-//					// Operand is value at a memory location
-//					memoryAddress = (memory[PC-2]<<8) + memory[PC-1];
-//					source = memory[memoryAddress];
-//
-//				} else if (instruction%4 == 1) {
-//					printf("CONST\n");
-//					// Operand is a constant
-//					if (instruction%8 > 3) {
-//						// MAR is destination
-//						source = (memory[PC-2]<<8) + memory[PC-1];
-//
-//					} else {
-//						//ACC is destination for the constant
-//						source = memory[PC-1];
-//					}
-//
-//				} else {
-//					// Operand indirect, address is saved in MAR
-//					source = (memory[PC-2]<<8) + memory[PC-1];
-//				}
-//
-//
-//
-//				// Determine Register
-//				if (instruction%8 > 3) {
-//					printf("INDEX ");
-//					if (instruction > 7) {
-//						MAR = source;
-//					} else {
-//
-//					}
-//
-//				} else {
-//					printf("ACC ");
-//				}
-//
-//
-//				if (instruction > 7)
-//				{
-//					printf("LOAD ");
-//				} else {
-//					printf("STOR ");
-//				}
 
 				break;
 		}
